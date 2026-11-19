@@ -1,0 +1,237 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Repertory / Gnomon Builder</title><style>
+:root{--paper:#fbf9f6;--ink:#181a17;--edge:#d9d7d0;--sub:#696b66;--branch:#5dd0d9;--field:#f7f5f1}
+*{box-sizing:border-box}html{min-width:320px}body{margin:0;background:#e9e8e4;color:var(--ink);font:13px/1.42 "Source Sans Pro","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
+button,input{font:inherit}button{cursor:pointer;border:1px solid var(--edge);color:inherit;background:#fff}button:focus-visible,input:focus-visible,.dropzone:focus-visible{outline:3px solid #397fb2;outline-offset:2px}button:disabled{opacity:.5;cursor:default}
+.shell{width:min(1500px,calc(100% - 36px));margin:18px auto 44px;padding:27px 36px 26px;background:var(--paper);box-shadow:0 23px 75px #181a1718}.mast{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-bottom:19px;border-bottom:1px solid var(--edge)}.mast strong{display:block;font-size:25px;letter-spacing:.21em;line-height:1.05;font-weight:900}.mast small{display:block;font-weight:800;font-size:11px;letter-spacing:.21em;margin-top:7px}.mast .right{text-align:right;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#71736c}
+.sec-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 9px}.sec-title h2{font-size:11px;text-transform:uppercase;letter-spacing:.15em;font-weight:850;margin:0}.sec-title .num{margin-right:9px;color:#92948d}.sec-title small{font-size:10px;color:#74766f}.control-row{display:grid;grid-template-columns:1fr 1.5fr;gap:12px;align-items:stretch;margin-top:16px}.panel,.construction,.toolcard{padding:13px;background:var(--field);border:1px solid var(--edge);min-width:0}
+.branch-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.branch{position:relative;min-height:59px;padding:9px 13px 12px;text-align:left}.branch::before{content:"";position:absolute;width:11px;height:11px;background:var(--sw);right:11px;top:10px}.branch::after{content:"";position:absolute;height:4px;background:var(--sw);left:0;right:0;bottom:0}.branch b{display:block;font-size:14px;line-height:1.1}.branch span{display:block;font-size:10px;color:#646660;margin-top:3px;letter-spacing:.05em;text-transform:uppercase}
+.branch.active,.preset.active,.choice.active,.family-btn.active{outline:2px solid var(--ink);outline-offset:-2px;background:#fff}
+.preset-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.preset{min-height:42px;padding:5px 8px;font-size:12px;font-weight:800;white-space:nowrap}.preset small{display:block;font-size:10px;color:#868880;font-weight:450}.ratio-bottom{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:10px;min-height:32px}.custom-ratio{display:flex;align-items:center;gap:5px;min-width:0}.custom-ratio label{font-size:10px;font-weight:800;color:#5b5d57;text-transform:uppercase;white-space:nowrap}.custom-ratio input{width:56px;min-width:0;padding:6px 5px;text-align:center;border:1px solid var(--edge);background:#fff;color:var(--ink);font-size:12px}.custom-ratio button,.image-shortcut{padding:6px 10px;font-weight:800;font-size:11px;min-height:32px}.or{color:#999b95;font-size:10px}.ratio-locked{opacity:.55;pointer-events:none}.ratio-note{font-size:10px;color:#73756e;min-height:14px;margin-top:8px}.ratio-note.warning{color:#a13026}
+.construction{margin-top:13px}.construction-head{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:9px}.construction-head .sec-title{margin:0}.families{display:flex;gap:6px}.family-btn{font-size:11px;font-weight:800;padding:8px 13px;min-width:85px}.choices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.choices.standard{grid-template-columns:repeat(2,minmax(0,1fr))}.choices.gridded{grid-template-columns:repeat(3,minmax(0,1fr))}.choice{display:flex;align-items:center;justify-content:center;gap:9px;min-height:40px;padding:8px 10px;text-align:center;font-weight:750;font-size:12px}.choice .glyph{width:22px;height:22px;flex:none;display:grid;place-items:center;border:1px solid var(--edge);font-size:12px;line-height:1}.choice.active .glyph{background:var(--branch);border-color:var(--branch);color:#181a17}
+.main-head{display:flex;justify-content:space-between;align-items:baseline;margin:19px 0 9px;gap:12px}.main-head h2{font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin:0}.main-head span{font-size:11px;color:#6f716a;text-align:right}.workbench{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(290px,.78fr);gap:14px;align-items:start}
+.preview-outer{border:1px solid var(--edge);background:#eeeae3;display:flex;align-items:center;justify-content:center;padding:25px;min-height:350px;position:relative;overflow:hidden}.artboard{position:relative;width:min(100%,calc(590px * var(--aspect)));max-height:590px;aspect-ratio:var(--aspect);background:#181a17;overflow:hidden;box-shadow:0 8px 28px #12120c1c;user-select:none}.artboard canvas{position:absolute;inset:0;width:100%;height:100%;display:block}.artboard #markCanvas{pointer-events:none}.artboard:not(.on-photo) #photoCanvas{display:none}.preview-caption{display:flex;justify-content:space-between;gap:10px;margin-top:9px;color:#686a64;font-size:10px}.preview-caption b{color:#252722}
+.tools{display:flex;flex-direction:column;gap:11px}.toolcard h3,.outputs h3{margin:0 0 10px;font-size:11px;text-transform:uppercase;letter-spacing:.14em;font-weight:850}.toolcard .help{color:#777971;font-size:11px;line-height:1.52;margin:10px 0 0}.dropzone{border:1px dashed #aeb0a7;background:#fff;display:flex;justify-content:center;align-items:center;flex-direction:column;text-align:center;padding:15px 8px;min-height:100px;cursor:pointer;gap:3px}.dropzone.dragover{border-color:var(--branch);outline:2px solid var(--branch)}.dropzone b{font-size:12px}.dropzone small{font-size:10px;color:#72746d}.uploaded{display:flex;justify-content:space-between;align-items:center;gap:9px;margin-top:10px}.uploaded .file-meta{min-width:0;color:#666963;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.plain-btn{background:transparent;border:0;text-decoration:underline;text-underline-offset:2px;font-size:11px;padding:3px;color:#353632}.info-divider{height:1px;background:var(--edge);margin:14px 0}.process-mini{display:grid;grid-template-columns:92px 1fr;gap:6px;font-size:11px}.process-mini dt{font-weight:800;font-size:10px;color:#767871;text-transform:uppercase}.process-mini dd{margin:0}.status{color:#555750;font-size:11px;min-height:16px;margin-top:10px}.status.error{color:#a12e24}
+.outputs{border-top:1px solid var(--edge);margin-top:19px;padding-top:17px;display:grid;grid-template-columns:1fr 1fr;gap:21px}.facts{display:grid;grid-template-columns:108px 1fr;gap:6px 11px;font-size:12px}.facts dt{font-size:10px;color:#74766f;text-transform:uppercase;letter-spacing:.05em;font-weight:850}.facts dd{margin:0;color:#363833}.exports{display:flex;flex-direction:column;align-items:stretch}.export-row{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}.btn{font-size:11px;font-weight:800;padding:12px 13px;min-height:43px}.btn.primary{border-color:#181a17;background:#181a17;color:#fff}.btn.primary:hover{background:#30322f}.export-note{color:#72746c;text-align:right;font-size:10px;margin-top:9px}.footer{display:flex;justify-content:space-between;gap:10px;font-size:10px;color:#777971;letter-spacing:.04em;border-top:1px solid var(--edge);margin-top:21px;padding-top:12px}
+@media(max-width:1100px){.shell{width:calc(100% - 20px);padding:22px 25px}.workbench{grid-template-columns:minmax(0,1.2fr) minmax(270px,.85fr)}.preview-outer{padding:18px}.controls{gap:8px}}
+@media(max-width:870px){.control-row{grid-template-columns:1fr}.workbench{grid-template-columns:1fr}.tools{flex-direction:row}.tools>.toolcard{flex:1}.preview-outer{min-height:280px}.outputs{grid-template-columns:1fr}.export-row{justify-content:flex-start}.export-note{text-align:left}}
+@media(max-width:630px){.shell{width:100%;padding:18px 14px;margin:0;box-shadow:none}.mast strong{font-size:19px}.mast .right{font-size:9px}.control-row{gap:10px}.branch{min-height:53px}.construction-head{align-items:flex-start;flex-direction:column}.families{width:100%}.family-btn{flex:1;min-width:0}.choices{grid-template-columns:repeat(2,minmax(0,1fr))}.choices.gridded{grid-template-columns:repeat(3,minmax(0,1fr))}.preview-outer{padding:12px}.main-head span{font-size:10px}.workbench{gap:11px}.tools{flex-direction:column}.preview-caption{flex-wrap:wrap}.outputs{gap:17px}.export-row .btn{flex:1;min-width:140px}.footer{font-size:9px}}
+
+/* v5: one treatment column beside the preview; image selection belongs to aspect ratio */
+.main-head{margin-top:16px}
+.workbench{grid-template-columns:minmax(0,1.75fr) minmax(275px,.8fr);gap:14px;align-items:stretch}
+.treatment-side{margin:0;min-width:0;display:flex;flex-direction:column;gap:14px;padding:17px;align-self:stretch}
+.treatment-side .construction-head{margin:0;display:flex;flex-direction:column;align-items:stretch;gap:13px}
+.treatment-side .families{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.treatment-side .family-btn{min-width:0;font-size:11px;padding:10px 5px}
+.treatment-side .choices,.treatment-side .choices.standard,.treatment-side .choices.gridded{display:grid;grid-template-columns:1fr;gap:7px}
+.treatment-side .choice{justify-content:flex-start;min-height:47px;padding:9px 13px}
+.ratio-uploaded{min-height:0;margin-top:5px;justify-content:flex-start}
+.ratio-uploaded .file-meta{font-size:10px}
+.ratio-uploaded:not(:has(#clearImage:not([hidden]))){display:none}
+.preview-outer{height:100%;min-height:420px}
+@media(max-width:1100px){.workbench{grid-template-columns:minmax(0,1.4fr) minmax(265px,.85fr)}}
+@media(max-width:870px){.workbench{grid-template-columns:1fr}.treatment-side{min-height:0}.treatment-side .construction-head{flex-direction:row;justify-content:space-between;align-items:center}.treatment-side .families{width:auto;min-width:245px}.treatment-side .choices.standard{grid-template-columns:repeat(2,minmax(0,1fr))}.treatment-side .choices.gridded{grid-template-columns:repeat(3,minmax(0,1fr))}.treatment-side .choices.lined{grid-template-columns:repeat(2,minmax(0,1fr))}.preview-outer{min-height:300px;height:auto}}
+@media(max-width:630px){.treatment-side{padding:12px}.treatment-side .construction-head{flex-direction:column;align-items:stretch}.treatment-side .families{width:100%;min-width:0}.treatment-side .choices.standard{grid-template-columns:repeat(2,minmax(0,1fr))}.treatment-side .choices.lined{grid-template-columns:repeat(2,minmax(0,1fr))}.preview-outer{min-height:280px}}
+</style></head><body><main class="shell">
+<header class="mast"><div><strong>REPERTORY</strong><small>GNOMON BUILDER</small></div><div class="right">IDENTITY CONSTRUCTION<br>AN INTERNAL DESIGN RESOURCE</div></header>
+<div class="control-row">
+<section class="panel"><div class="sec-title"><h2><span class="num">01</span>Branch</h2><small>Dark / India ground</small></div><div class="branch-grid" id="branchGrid" role="group" aria-label="Branch"></div></section>
+<section class="panel ratio-panel"><div class="sec-title"><h2><span class="num">02</span>Aspect ratio</h2><small id="aspectInfo">1 : 1</small></div><div class="preset-grid" id="ratioGrid" role="group" aria-label="Aspect ratio"></div><div class="ratio-bottom" id="ratioBottom"><div class="custom-ratio"><label for="ratioW">Custom</label><input id="ratioW" type="number" min="1" max="9999" step="1" value="1" aria-label="Custom width"><span aria-hidden="true">:</span><input id="ratioH" type="number" min="1" max="9999" step="1" value="1" aria-label="Custom height"><button id="useCustom" type="button">Apply</button></div><span class="or">OR</span><button class="image-shortcut" id="uploadShortcut" type="button">Upload image</button><input id="fileInput" type="file" accept="image/png,image/jpeg,image/webp" hidden></div><div class="uploaded ratio-uploaded"><span class="file-meta" id="imageMeta" aria-live="polite">No photograph loaded</span><button type="button" class="plain-btn" id="clearImage" hidden>Remove image</button></div><div class="ratio-note" id="ratioNote">The R's thickness is fixed; only endpoints extend and the square expands.</div></section>
+</div>
+<div class="main-head"><h2>In application</h2><span id="stateLabel">Concepts / Dark / Filled</span></div>
+<div class="workbench">
+<div><div class="preview-outer" id="preview-outer"><div id="artboard" class="artboard" style="--aspect:1" aria-label="Live Gnomon geometry on an India field or at 75 percent opacity over an uploaded photograph"><canvas id="photoCanvas" aria-hidden="true"></canvas><canvas id="markCanvas" aria-hidden="true"></canvas></div></div><div class="preview-caption"><span id="previewSize"><b>1 : 1</b> · master proportions</span><span id="previewHint">Branch-color Gnomon / India</span></div></div>
+<section class="construction treatment-side"><div class="construction-head"><div class="sec-title"><h2><span class="num">03</span>Gnomon treatment</h2></div><div class="families" id="familyGrid" role="group" aria-label="Gnomon treatment category"></div></div><div class="choices" id="choices" role="group" aria-label="Treatment options"></div></section></div>
+<div class="outputs"><section><h3>Construction notes</h3><dl class="facts"><dt>Transformation</dt><dd id="transformInfo">Master 1:1</dd><dt>Module</dt><dd id="moduleInfo">Fixed separation metric</dd><dt>Figure / ground</dt><dd id="figureInfo">Patina / India</dd><dt>Treatment</dt><dd id="treatmentInfo">Standard / Filled</dd></dl></section><section class="exports"><h3>Export assets</h3><div class="export-row"><button type="button" id="downloadAssets" class="btn primary">Download Gnomon SVG + PNG</button></div><div class="export-note" id="exportNote">A single click downloads the transparent Gnomon as both SVG and PNG, with the fixed outer margin included.</div><div class="status" id="status" role="status" aria-live="polite"></div></section></div>
+<footer class="footer"><span>REPERTORY / GNOMON BUILDER</span><span>FIXED WEIGHT · SINGLE-AXIS EXTENSION</span></footer></main><script id="processor" type="text/plain">
+'use strict';
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x));
+self.onmessage = function(ev) {
+ const {id, pixels, width:w,height:h, params} = ev.data;
+ try {
+   const src=new Uint8ClampedArray(pixels), len=w*h, size=Math.max(1,Math.round(params.pixelScale));
+   const mw=Math.ceil(w/size), mh=Math.ceil(h/size), cols=params.mode==='color'?3:1;
+   const channels=new Float32Array(mw*mh*cols), alpha=new Uint8ClampedArray(mw*mh);
+   const tint=params.tint;
+   const contrast=params.contrast>=0?1+params.contrast*1.35:1+params.contrast*.75;
+   const adjust=(x,light)=>{
+     let y=(x-.5)*contrast+.5+params.brightness*.22;
+     y+=params.highlights*.30*light*light +params.shadows*.30*(1-light)*(1-light);
+     return clamp(y);
+   };
+   for(let cy=0;cy<mh;cy++) for(let cx=0;cx<mw;cx++){
+     const a=cx*size,b=cy*size,xmax=Math.min(w,a+size),ymax=Math.min(h,b+size);
+     let sr=0,sg=0,sb=0,sa=0,weight=0;
+     for(let y=b;y<ymax;y++)for(let x=a;x<xmax;x++){
+       const i=(y*w+x)*4, al=src[i+3]/255;
+       sr+=src[i]*al;sg+=src[i+1]*al;sb+=src[i+2]*al;sa+=src[i+3];weight+=al;
+     }
+     const idx=cy*mw+cx, count=(xmax-a)*(ymax-b);
+     alpha[idx]=Math.round(sa/count);
+     if(weight<.0001) continue;
+     const r=sr/weight/255,g=sg/weight/255,bv=sb/weight/255;
+     const lum=.2126*r+.7152*g+.0722*bv;
+     if(cols===1) channels[idx]=adjust(lum,lum);
+     else {
+       channels[idx*3]=adjust(r,lum);
+       channels[idx*3+1]=adjust(g,lum);
+       channels[idx*3+2]=adjust(bv,lum);
+     }
+   }
+   // Serpentine Floyd–Steinberg diffusion, mirrored on alternate rows.
+   const quant=params.quantize, strength=params.dither;
+   const levels=cols===3?params.depth:2;
+   if(quant){for(let y=0;y<mh;y++){
+     const dir=y%2===0?1:-1;
+     for(let z=0;z<mw;z++){
+       const x=dir===1?z:mw-1-z, cell=y*mw+x;
+       if(alpha[cell]===0) continue;
+       for(let ch=0;ch<cols;ch++){
+         const i=cell*cols+ch,v=clamp(channels[i]);
+         const q=Math.round(v*(levels-1))/(levels-1),err=(v-q)*strength;
+         channels[i]=q;
+         const d=(xx,yy,wt)=>{if(xx<0||xx>=mw||yy>=mh)return; const ni=yy*mw+xx;if(alpha[ni]===0)return;channels[ni*cols+ch]+=err*wt;};
+         d(x+dir,y,7/16);d(x-dir,y+1,3/16);d(x,y+1,5/16);d(x+dir,y+1,1/16);
+       }
+     }
+   }}
+   const out=new Uint8ClampedArray(w*h*4);
+   for(let cy=0;cy<mh;cy++)for(let cx=0;cx<mw;cx++){
+     const cell=cy*mw+cx,lum=clamp(channels[cell]);
+     const r=cols===1?(params.mode==='tint'?lum*tint[0]:lum):clamp(channels[cell*3]);
+     const g=cols===1?(params.mode==='tint'?lum*tint[1]:lum):clamp(channels[cell*3+1]);
+     const b=cols===1?(params.mode==='tint'?lum*tint[2]:lum):clamp(channels[cell*3+2]);
+     for(let y=cy*size;y<Math.min(h,(cy+1)*size);y++)for(let x=cx*size;x<Math.min(w,(cx+1)*size);x++){
+       const at=(y*w+x)*4, orig=src[at+3];
+       out[at]=Math.round(r*255);out[at+1]=Math.round(g*255);out[at+2]=Math.round(b*255);out[at+3]=orig;
+     }
+   }
+   self.postMessage({id,width:w,height:h,pixels:out.buffer},[out.buffer]);
+ }catch(e){self.postMessage({id,error:String(e)})}
+};
+</script><script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id);
+const BRANCHES=[{name:'Concepts',color:'Patina',hex:'#5DD0D9'},{name:'Pressing',color:'Marquee',hex:'#EACB22'},{name:'Provisions',color:'Apertivo',hex:'#F95C43'},{name:'Social',color:'Gala',hex:'#E95592'}];
+const RATIOS=[{label:'Square',text:'1 : 1',w:1,h:1},{label:'Wide',text:'16 : 9',w:16,h:9},{label:'Classic',text:'4 : 3',w:4,h:3},{label:'Photo',text:'3 : 2',w:3,h:2},{label:'Portrait',text:'9 : 16',w:9,h:16},{label:'US Letter',text:'8.5 : 11',w:17,h:22}];
+// Exact measurements from the supplied canonical master vector.
+// On extension the R's original arm thickness is never recalculated.
+const MASTER=396.875,ARM=174.039,GAP=48.797,STROKE=39.1039/2,MARGIN=ARM;
+const FAMILIES={Standard:[['Filled','Master filled construction'],['Stroked','Master-proportioned inside stroke']],Gridded:[['2 × 2','Two divisions'],['4 × 4','Four divisions'],['6 × 6','Six divisions']],Lined:[['Horizontal','Parallel horizontal'],['Perpendicular','Vertical stem and horizontal arm'],['Crosswise','Horizontal arm and vertical stem'],['Nested','Nested right angles']]};
+const S={branch:0,ratio:0,w:1,h:1,family:'Standard',variant:0,img:null,imgName:'',url:null,processed:null,request:0,exporting:false};
+let workerURI=null,workerId=0;
+const fmt=n=>Number(n.toFixed(5));
+function geometry(w,h){const ratio=w/h;const W=ratio>=1?MASTER*ratio:MASTER,H=ratio>=1?MASTER:MASTER/ratio;return {W,H,left:ARM,top:ARM,right:ARM+GAP,bottom:ARM+GAP,extent:Math.abs(ratio-1)<1e-7?'None':ratio>1?'Horizontal':'Vertical',arm:ARM,gap:GAP,squareWidth:W-ARM-GAP,squareHeight:H-ARM-GAP};}
+function mainPath(g){return `M0 0H${fmt(g.W)}V${fmt(ARM)}H${fmt(ARM)}V${fmt(g.H)}H0Z`}
+function squarePath(g){return `M${fmt(ARM+GAP)} ${fmt(ARM+GAP)}H${fmt(g.W)}V${fmt(g.H)}H${fmt(ARM+GAP)}Z`}
+function gridLayout(g,n){
+ const half=n/2, cell=(ARM-(half-1)*GAP)/half,step=cell+GAP;
+ const right=g.W-ARM-GAP,bottom=g.H-ARM-GAP;
+ // Count only whole cells. For the original square, half cells fit exactly.
+ const count=length=>Math.max(half,Math.floor((length+GAP+1e-7)/step));
+ const cols=count(right),rows=count(bottom);
+ const usedRightWidth=cols*cell+(cols-1)*GAP;
+ const usedBottomHeight=rows*cell+(rows-1)*GAP;
+ const unusedX=Math.max(0,right-usedRightWidth),unusedY=Math.max(0,bottom-usedBottomHeight);
+ return {n,half,cell,step,cols,rows,usedRightWidth,usedBottomHeight,unusedX,unusedY,shiftX:unusedX/2,shiftY:unusedY/2};
+}
+function rects(g){const a=[],add=(x,y,w,h)=>{if(w>0&&h>0)a.push([x,y,w,h])};const {W,H,right,bottom}=g;
+ if(S.family==='Standard')return [[0,0,W,ARM],[0,ARM,ARM,H-ARM],[right,bottom,W-right,H-bottom]];
+ // Lined construction uses one immutable stripe weight and one gap in both directions.
+ // Added length is filled only with complete stripes; excess is kept blank, centered.
+ const stripe=(ARM-2*GAP)/3, pitch=stripe+GAP;
+ const segments=(start,length,fit=false)=>{
+  const count=fit?Math.max(3,Math.floor((length+GAP+1e-7)/pitch)):3;
+  const occupied=count*stripe+(count-1)*GAP;
+  const inset=fit?Math.max(0,(length-occupied)/2):0;
+  return Array.from({length:count},(_,i)=>[start+inset+i*pitch,stripe]);
+ };
+ if(S.family==='Gridded'){
+  // Every separated grid cell uses ONE size and ONE gap on BOTH axes.
+  // Extension adds complete columns/rows; it never stretches individual cells.
+  // The solid lower-right field follows the resulting modular bounds.
+  const layout=gridLayout(g,[2,4,6][S.variant]);
+  const {cell,step,half,cols,rows,shiftX,shiftY,usedRightWidth,usedBottomHeight}=layout;
+  const xl=Array.from({length:half},(_,i)=>shiftX+i*step);
+  const xr=Array.from({length:cols},(_,i)=>shiftX+right+i*step);
+  const yt=Array.from({length:half},(_,i)=>shiftY+i*step);
+  const yb=Array.from({length:rows},(_,i)=>shiftY+bottom+i*step);
+  for(const x of [...xl,...xr])for(const y of yt)add(x,y,cell,cell);
+  for(const x of xl)for(const y of yb)add(x,y,cell,cell);
+  add(shiftX+right,shiftY+bottom,usedRightWidth,usedBottomHeight);
+ } else {
+  const ytop=segments(0,ARM),ybase=segments(bottom,H-bottom,true),xleft=segments(0,ARM);
+  if(S.variant===0){for(const [y,h] of ytop)add(0,y,W,h);for(const [y,h] of ybase)add(0,y,ARM,h)}
+  if(S.variant===1){for(const [x,w] of xleft)add(x,0,w,H);for(const [y,h] of ytop)add(right,y,W-right,h)}
+  if(S.variant===2){for(const [y,h] of ytop)add(0,y,W,h);for(const [x,w] of xleft)add(x,bottom,w,H-bottom)}
+  if(S.variant===3){for(let i=0;i<3;i++){const [x,w]=xleft[i],[y,h]=ytop[i];add(x,y,W-x,h);add(x,y,w,H-y)}}
+  add(right,bottom,W-right,H-bottom);
+ }
+ return a;
+}
+function svgContent(g,color){if(S.family==='Standard'){
+ const m=mainPath(g),sq=squarePath(g);
+ if(S.variant===0)return `<g fill="${color}"><path d="${m}"/><path d="${sq}"/></g>`;
+ return `<defs><clipPath id="clip-r"><path d="${m}"/></clipPath><clipPath id="clip-sq"><path d="${sq}"/></clipPath></defs><path d="${m}" fill="none" stroke="${color}" stroke-width="${fmt(STROKE*2)}" clip-path="url(#clip-r)"/><path d="${sq}" fill="none" stroke="${color}" stroke-width="${fmt(STROKE*2)}" clip-path="url(#clip-sq)"/>`;
+ }
+ return `<g fill="${color}">${rects(g).map(([x,y,w,h])=>`<rect x="${fmt(x)}" y="${fmt(y)}" width="${fmt(w)}" height="${fmt(h)}"/>`).join('')}</g>`;
+}
+function drawShape(ctx,g,color){ctx.fillStyle=color;ctx.strokeStyle=color;
+ if(S.family==='Standard'){
+ const main=new Path2D(mainPath(g)),sq=new Path2D(squarePath(g));
+ if(S.variant===0){ctx.fill(main);ctx.fill(sq)}
+ else {ctx.lineWidth=STROKE*2;ctx.lineCap='butt';ctx.lineJoin='miter';for(const p of [main,sq]){ctx.save();ctx.clip(p);ctx.stroke(p);ctx.restore()}}
+ } else for(const r of rects(g))ctx.fillRect(...r);
+}
+function markBounds(g){return {W:g.W+2*MARGIN,H:g.H+2*MARGIN,margin:MARGIN}}
+function paintMark(ctx,width,height,photo=false){const g=geometry(S.w,S.h),box=markBounds(g),s=Math.min(width/box.W,height/box.H),ox=(width-box.W*s)/2+box.margin*s,oy=(height-box.H*s)/2+box.margin*s;ctx.save();ctx.globalAlpha=photo?0.75:1;ctx.translate(ox,oy);ctx.scale(s,s);drawShape(ctx,g,BRANCHES[S.branch].hex);ctx.restore()}
+function renderCanvasSize(){const bb=$('artboard').getBoundingClientRect(),r=S.w/S.h;const pr=Math.min(window.devicePixelRatio||1,2);let w=Math.max(1,Math.round(bb.width*pr)),h=Math.max(1,Math.round(w/r));if(h>1500){h=1500;w=Math.max(1,Math.round(h*r))}return [w,h]}
+function render(){const board=$('artboard'),[w,h]=renderCanvasSize();for(const id of ['photoCanvas','markCanvas']){const c=$(id);if(c.width!==w)c.width=w;if(c.height!==h)c.height=h}
+ const pctx=$('photoCanvas').getContext('2d');pctx.clearRect(0,0,w,h);if(S.img)pctx.drawImage(S.processed||S.img,0,0,w,h);
+ const mctx=$('markCanvas').getContext('2d');mctx.clearRect(0,0,w,h);paintMark(mctx,w,h,!!S.img);
+ board.classList.toggle('on-photo',!!S.img);
+}
+function note(s='',bad=false){$('status').textContent=s;$('status').classList.toggle('error',bad)}
+function update(){const b=BRANCHES[S.branch],g=geometry(S.w,S.h);document.documentElement.style.setProperty('--branch',b.hex);$('artboard').style.setProperty('--aspect',S.w/S.h);$('artboard').style.background='#181A17';
+ $('aspectInfo').textContent=S.img?`${S.img.naturalWidth} × ${S.img.naturalHeight}`:`${S.w} : ${S.h}`;
+ $('stateLabel').textContent=`${b.name} / Dark / ${FAMILIES[S.family][S.variant][0]}`;
+ $('previewSize').innerHTML=`<b>${S.img?S.img.naturalWidth+' × '+S.img.naturalHeight:S.w+' : '+S.h}</b> · ${g.extent==='None'?'master proportions':g.extent.toLowerCase()+' extension'}`;
+ $('previewHint').textContent=S.img?'75% opacity Gnomon / treated photo':'Branch-primary Gnomon / India';
+ $('transformInfo').textContent=g.extent==='None'?'Master square — original R thickness':g.extent+' endpoint extension; R arm thickness unchanged';
+ $('moduleInfo').textContent=`Fixed gap: ${GAP.toFixed(3)} units · R arm: ${ARM.toFixed(3)} units · outer margin: ${ARM.toFixed(3)} units`;
+ $('figureInfo').textContent=S.img?`${b.color} at 75% opacity over treated photo; transparent Gnomon export`:`${b.color} mark on India`;
+ if(S.family==='Gridded'){
+  const grid=gridLayout(g,[2,4,6][S.variant]);
+  $('treatmentInfo').textContent=`${S.family} / ${FAMILIES[S.family][S.variant][0]}. Uniform ${grid.cell.toFixed(2)}-unit squares, ${GAP.toFixed(2)}-unit spacing. ${grid.cols+grid.half} columns × ${grid.rows+grid.half} rows; nearest complete modular fit.`;
+ } else $('treatmentInfo').textContent=`${S.family} / ${FAMILIES[S.family][S.variant][0]}. ${S.family==='Lined'?'Equal-width stripes and fixed gaps; whole units only.':`Square ${g.squareWidth.toFixed(1)} × ${g.squareHeight.toFixed(1)} units.`}`;
+ $('ratioBottom').classList.toggle('ratio-locked',!!S.img);$('ratioNote').classList.remove('warning');$('ratioNote').textContent=S.img?'Image dimensions determine this format. Remove the photo to change the ratio.':S.family==='Gridded'?'Grid cells remain square, with fixed gaps; only whole rows or columns are added.':'Only endpoints extend. Grids and lines use complete, fixed-width modules where the field allows.';
+ render();
+}
+function buttons(){ $('branchGrid').innerHTML=BRANCHES.map((b,i)=>`<button type="button" class="branch ${i===S.branch?'active':''}" style="--sw:${b.hex}" data-i="${i}" aria-pressed="${i===S.branch}"><b>${b.name}</b><span>${b.color}</span></button>`).join('');for(const el of $('branchGrid').children)el.onclick=()=>{S.branch=+el.dataset.i;buttons();update()};
+ $('ratioGrid').innerHTML=RATIOS.map((r,i)=>`<button type="button" class="preset ${S.ratio===i?'active':''}" data-i="${i}" aria-pressed="${S.ratio===i}" ${S.img?'disabled':''}>${r.label}<small>${r.text}</small></button>`).join('');for(const el of $('ratioGrid').children)el.onclick=()=>{const r=RATIOS[+el.dataset.i];S.ratio=+el.dataset.i;S.w=r.w;S.h=r.h;$('ratioW').value=r.w;$('ratioH').value=r.h;buttons();update()};
+ $('familyGrid').innerHTML=Object.keys(FAMILIES).map(f=>`<button type="button" class="family-btn ${f===S.family?'active':''}" data-f="${f}" aria-pressed="${f===S.family}">${f}</button>`).join('');for(const el of $('familyGrid').children)el.onclick=()=>{S.family=el.dataset.f;S.variant=0;buttons();update()};
+ $('choices').className='choices '+S.family.toLowerCase();$('choices').innerHTML=FAMILIES[S.family].map((c,i)=>`<button type="button" class="choice ${i===S.variant?'active':''}" data-i="${i}" aria-pressed="${i===S.variant}" title="${c[1]}"><span class="glyph">${S.family==='Standard'?(i?'□':'■'):S.family==='Gridded'?'▦':'☰'}</span>${c[0]}</button>`).join('');for(const el of $('choices').children)el.onclick=()=>{S.variant=+el.dataset.i;buttons();update()};
+}
+function customRatio(){if(S.img)return;const w=Number($('ratioW').value),h=Number($('ratioH').value);if(!Number.isSafeInteger(w)||!Number.isSafeInteger(h)||w<1||h<1||w>9999||h>9999){$('ratioNote').textContent='Enter whole numbers from 1 to 9,999.';$('ratioNote').classList.add('warning');return}if(w/h<.05||w/h>20){$('ratioNote').textContent='Supported aspect ratios range from 1:20 to 20:1.';$('ratioNote').classList.add('warning');return}S.ratio=-1;S.w=w;S.h=h;buttons();update()}
+function hexRgb(s){return [1,3,5].map(i=>parseInt(s.slice(i,i+2),16)/255)}
+function worker(){if(!workerURI)workerURI=URL.createObjectURL(new Blob([$('processor').textContent],{type:'text/javascript'}));return new Worker(workerURI)}
+function photoParams(){return {mode:'color',tint:hexRgb(BRANCHES[S.branch].hex),brightness:0,contrast:.14,highlights:.08,shadows:-.08,dither:.50,pixelScale:1,depth:28,quantize:true}}
+function processFrame(pixels,w,h){return new Promise((resolve,reject)=>{const wk=worker(),id=++workerId;wk.onmessage=e=>{if(e.data.id!==id)return;wk.terminate();if(e.data.error)reject(Error(e.data.error));else resolve(new ImageData(new Uint8ClampedArray(e.data.pixels),w,h))};wk.onerror=e=>{wk.terminate();reject(Error(e.message||'Image processing failed'))};wk.postMessage({id,width:w,height:h,pixels:pixels.buffer,params:photoParams()},[pixels.buffer])})}
+async function processPreview(){if(!S.img)return;const req=++S.request,src=S.img;try{note('Preparing Dark photographic treatment…');const ratio=Math.min(1,1100/Math.max(src.naturalWidth,src.naturalHeight)),w=Math.max(1,Math.round(src.naturalWidth*ratio)),h=Math.max(1,Math.round(src.naturalHeight*ratio));const c=document.createElement('canvas');c.width=w;c.height=h;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(src,0,0,w,h);const data=await processFrame(ctx.getImageData(0,0,w,h).data,w,h);if(req!==S.request)return;ctx.putImageData(data,0,0);S.processed=c;note('');render()}catch(e){if(req!==S.request)return;note('Photo preview processing unavailable: '+e.message,true);render()}}
+async function addFile(file){if(!file)return;if(!['image/jpeg','image/png','image/webp'].includes(file.type)){note('Please choose a JPG, PNG or WebP file.',true);return}let url;try{url=URL.createObjectURL(file);const img=new Image();img.src=url;await img.decode();if(!img.naturalWidth||!img.naturalHeight||img.naturalWidth*img.naturalHeight>42000000){URL.revokeObjectURL(url);note('Image exceeds the browser-safe 42-megapixel limit.',true);return}if(S.url)URL.revokeObjectURL(S.url);S.img=img;S.url=url;S.imgName=file.name;S.processed=null;S.w=img.naturalWidth;S.h=img.naturalHeight;S.ratio=-2;$('imageMeta').textContent=`${file.name} · ${img.naturalWidth} × ${img.naturalHeight}`;$('clearImage').hidden=false;buttons();update();await processPreview()}catch(e){if(url)URL.revokeObjectURL(url);note('Unable to read photograph: '+e.message,true)}}
+function removePhoto(){S.request++;if(S.url)URL.revokeObjectURL(S.url);S.img=null;S.url=null;S.imgName='';S.processed=null;S.ratio=0;S.w=1;S.h=1;$('ratioW').value=1;$('ratioH').value=1;$('imageMeta').textContent='No photograph loaded';$('clearImage').hidden=true;buttons();update();note('Photograph removed.')}
+const tag=()=>`Repertory_${BRANCHES[S.branch].name}_Dark_${S.family}_${FAMILIES[S.family][S.variant][0].replace(/[^a-z0-9]+/gi,'')}`;
+function trigger(blob,name){const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),40000)}
+function buildSVGString(){const g=geometry(S.w,S.h),box=markBounds(g),content=svgContent(g,BRANCHES[S.branch].hex);return `<svg xmlns="http://www.w3.org/2000/svg" width="${fmt(box.W)}" height="${fmt(box.H)}" viewBox="0 0 ${fmt(box.W)} ${fmt(box.H)}"><title>Repertory Gnomon ${S.family} ${FAMILIES[S.family][S.variant][0]}</title><g transform="translate(${fmt(box.margin)} ${fmt(box.margin)})">${content}</g></svg>`}
+function toBlob(canvas){return new Promise((res,rej)=>canvas.toBlob(b=>b?res(b):rej(Error('PNG encoding failed')),'image/png'))}
+async function buildMarkPNGBlob(){const g=geometry(S.w,S.h),box=markBounds(g),ratio=box.W/box.H;let w,h;const lim=2400;w=ratio>=1?lim:Math.max(1,Math.round(lim*ratio));h=ratio>=1?Math.max(1,Math.round(lim/ratio)):lim;if(w*h>42000000)throw Error('Image too large for browser export');const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d');if(!ctx)throw Error('Canvas unavailable');ctx.clearRect(0,0,w,h);paintMark(ctx,w,h,false);const blob=await toBlob(canvas);canvas.width=canvas.height=0;return {blob,w,h}}
+async function exportAssets(){if(S.exporting)return;S.exporting=true;const btn=$('downloadAssets');btn.disabled=true;try{const svg=buildSVGString();trigger(new Blob([svg],{type:'image/svg+xml;charset=utf-8'}),tag()+'_Transparent.svg');const png=await buildMarkPNGBlob();trigger(png.blob,tag()+'_Transparent.png');note(`Downloaded transparent Gnomon SVG and PNG${png.w&&png.h?` · PNG ${png.w} × ${png.h}`:''}.`)}catch(e){note('Asset export failed: '+e.message,true)}finally{S.exporting=false;btn.disabled=false}}
+function init(){buttons();update();$('useCustom').onclick=customRatio;for(const id of ['ratioW','ratioH'])$(id).onkeydown=e=>{if(e.key==='Enter')customRatio()};const open=()=>$('fileInput').click();$('uploadShortcut').onclick=open;$('fileInput').onchange=e=>{addFile(e.target.files[0]);e.target.value=''};$('clearImage').onclick=removePhoto;
+ $('preview-outer').addEventListener('dragover',e=>e.preventDefault());$('preview-outer').addEventListener('drop',e=>{e.preventDefault();addFile(e.dataTransfer?.files[0])});$('downloadAssets').onclick=exportAssets;
+ if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>render()).observe($('artboard'));window.addEventListener('resize',render);
+ // Testing and production preflight can inspect these source-derived dimensions.
+ window.__repertoryGeometry={geometry,gridLayout,rects,markBounds,arm:ARM,gap:GAP,margin:MARGIN,master:MASTER,lineWidth:(ARM-2*GAP)/3};
+}
+init();
+})();
+</script></body></html>
